@@ -238,13 +238,13 @@ class Planner:
         #             continue
         #         actions.append((v, w))
 
-        # actions = [(1,0)]
-        # for w in np.linspace(-1, 1, 5):
-        #     if w == 0:
-        #         continue
-        #     actions.append((0, w * np.pi/2))
+        actions = [(1,0)]
+        for w in np.linspace(-1, 1, 5):
+            if w == 0:
+                continue
+            actions.append((0, w * np.pi/2))
 
-        actions = [(1,0), (0,-1*pi/2), (0,-0.5*pi/2), (0,0.5*pi/2), (0,1*pi/2)]
+        # actions = [(1,0), (0,-1*pi/2), (0,-0.5*pi/2), (0,0.5*pi/2), (0,1*pi/2)]
 
         # actions = [(0,1 * pi/2), (0,-1 * pi/2)]
         # for w in np.linspace(-1, 1, 5):
@@ -291,11 +291,12 @@ class Planner:
                 new_state = self.motion_predict(x, y, theta, v, w)
                 if new_state is None:
                     continue
-                # new_x = round(new_state[0], 3)
-                # new_y = round(new_state[1], 3)
-                new_x = int(round(new_state[0]))
-                new_y = int(round(new_state[1]))
-                new_theta = round(new_state[2] % (np.pi * 2))
+                new_x = round(new_state[0], 3)
+                new_y = round(new_state[1], 3)
+                # new_x = int(round(new_state[0]))
+                # new_y = int(round(new_state[1]))
+                # new_theta = round(new_state[2] % (np.pi * 2))
+                new_theta = self.get_nearest_theta_bin(new_state[2])
                 new_state = (new_x, new_y, new_theta)
 
                 if new_state in visited:
@@ -335,6 +336,18 @@ class Planner:
             self.action_seq.insert(0, action)
             curr = parent
         # print(self.action_seq)
+
+    def get_nearest_theta_bin(self, theta):
+        nearest = 0
+        min_d = float("inf")
+        for i in np.linspace(-1, 1, 5):
+            w = i * np.pi/2
+            d_theta = abs(theta - w)
+            if d_theta < min_d:
+                nearest = w
+                min_d = d_theta
+        return nearest
+
 
     def get_heuristic_cost(self, state):
         x = state[0]
